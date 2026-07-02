@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { projects as allProjects, type Project } from "@/lib/projects";
+import { type Project } from "@/lib/projects";
 
 function getLookbookImage(project: Project): string {
   if (/\.(webm|mp4|mov)$/i.test(project.hero)) {
@@ -10,6 +10,12 @@ function getLookbookImage(project: Project): string {
 }
 
 const textClass = "font-mono text-[9px] font-bold tracking-normal uppercase leading-none";
+
+function chunk<T>(arr: T[], size: number): T[][] {
+  const rows: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) rows.push(arr.slice(i, i + size));
+  return rows;
+}
 
 function ProjectRow({ group, cols, sizes, gap }: { group: Project[]; cols: string; sizes: string; gap: string }) {
   return (
@@ -29,16 +35,15 @@ function ProjectRow({ group, cols, sizes, gap }: { group: Project[]; cols: strin
       {group.map((project) => (
         <div key={`text-${project.id}`} className="row-start-2 pt-2 flex flex-col">
           <span className={`${textClass} text-foreground`}>{project.title}</span>
-          <span className={`${textClass} text-foreground/40`}>{project.client}</span>
         </div>
       ))}
     </div>
   );
 }
 
-export default function ProjectGrid({ items = allProjects }: { items?: Project[] }) {
-  const mobileRows = [items.slice(0, 2), items.slice(2, 4), items.slice(4)].filter((g) => g.length > 0);
-  const desktopRows = [items.slice(0, 4), items.slice(4)].filter((g) => g.length > 0);
+export default function ProjectGrid({ items }: { items: Project[] }) {
+  const mobileRows = chunk(items, 2);
+  const desktopRows = chunk(items, 4);
 
   return (
     <main className="min-h-[100dvh] bg-background px-6 md:px-10 lg:px-16 pt-28 pb-16">

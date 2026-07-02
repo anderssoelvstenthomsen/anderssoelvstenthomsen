@@ -20,6 +20,9 @@
 # production
 /build
 
+# media (managed in Sanity, not committed)
+/public/assets/
+
 # misc
 .DS_Store
 *.pem

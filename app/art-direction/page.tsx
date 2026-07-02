@@ -1,6 +1,7 @@
 import ProjectGrid from "@/components/project-grid";
-import { projects } from "@/lib/projects";
+import { getProjects } from "@/lib/content";
 
-export default function ArtDirectionPage() {
-  return <ProjectGrid items={projects} />;
+export default async function ArtDirectionPage() {
+  const projects = await getProjects();
+  return <ProjectGrid items={projects.filter((p) => p.category === "art-direction")} />;
 }

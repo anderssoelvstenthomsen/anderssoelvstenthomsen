@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { projects } from "@/lib/projects";
+import { getProjects } from "@/lib/content";
 
 export const dynamic = "force-static";
 
@@ -7,7 +7,8 @@ const baseUrl = "https://anderssoelvstenthomsen.com";
 
 const workCategories = ["editorial", "motion", "clients", "art-direction"];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const projects = await getProjects();
   const projectUrls = projects.map((project) => ({
     url: `${baseUrl}/projects/${project.id}`,
     lastModified: new Date(),

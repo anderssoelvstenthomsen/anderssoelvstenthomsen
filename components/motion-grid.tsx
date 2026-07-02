@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-
-export type MotionItem = {
-  title: string;
-  client: string;
-  video: string;
-  poster: string;
-};
+import type { MotionItem } from "@/lib/motion";
 
 const textClass = "font-mono text-[9px] font-bold tracking-normal uppercase leading-none";
+
+function chunk<T>(arr: T[], size: number): T[][] {
+  const rows: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) rows.push(arr.slice(i, i + size));
+  return rows;
+}
 
 function MotionRow({
   group,
@@ -51,7 +51,6 @@ function MotionRow({
       {group.map((item) => (
         <div key={`text-${item.video}`} className="row-start-2 pt-2 flex flex-col">
           <span className={`${textClass} text-foreground`}>{item.title}</span>
-          <span className={`${textClass} text-foreground/40`}>{item.client}</span>
         </div>
       ))}
     </div>
@@ -61,8 +60,8 @@ function MotionRow({
 export default function MotionGrid({ items }: { items: MotionItem[] }) {
   const [active, setActive] = useState<MotionItem | null>(null);
 
-  const mobileRows = [items.slice(0, 2), items.slice(2, 4), items.slice(4)].filter((g) => g.length > 0);
-  const desktopRows = [items.slice(0, 4), items.slice(4)].filter((g) => g.length > 0);
+  const mobileRows = chunk(items, 2);
+  const desktopRows = chunk(items, 4);
 
   return (
     <main className="min-h-[100dvh] bg-background px-6 md:px-10 lg:px-16 pt-28 pb-16">

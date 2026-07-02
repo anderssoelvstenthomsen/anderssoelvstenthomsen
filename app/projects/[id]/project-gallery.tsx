@@ -77,7 +77,7 @@ export default function ProjectGallery({ project }: { project: Project }) {
         <div className="relative z-20 flex items-end justify-between px-6 md:px-10 lg:px-16 pb-6 pt-4 shrink-0 bg-background">
           <div className="flex flex-col items-start gap-1">
             <span className="font-mono text-[9px] font-bold tracking-normal uppercase text-foreground">
-              {project.title} for {project.client}
+              {project.title} — {project.client}
             </span>
             <div className="flex gap-4">
               <button
