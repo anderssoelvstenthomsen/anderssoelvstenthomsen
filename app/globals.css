@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+:root {
+    --background: #FAFAFA;
+    --foreground: #1A1A1A;
+    --accent: #8B3A2F;
+    --wash: #E0E0DB;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-accent: var(--accent);
+    --color-wash: var(--wash);
+    --font-sans: var(--font-nimbus-sans);
+    --font-mono: var(--font-nimbus-sans);
+}
+
+body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-mono);
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
