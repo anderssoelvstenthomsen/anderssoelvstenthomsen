@@ -40,35 +40,28 @@ function itemUrl(item?: SanityImage, width = 2400): string {
 }
 
 function mapProject(r: ProjectRow): Project {
-  const rawSections =
-    r.sections && r.sections.length > 0
-      ? r.sections.map((s) => ({ title: s.title ?? "", items: s.images ?? [] }))
-      : [{ title: "", items: r.images ?? [] }];
-
-  const sections = rawSections
-    .map((s) => ({ title: s.title, images: s.items.map((im) => itemUrl(im)).filter(Boolean) }))
-    .filter((s) => s.images.length > 0);
-
-  const images = sections.flatMap((s) => s.images);
-  const firstImageItem = rawSections
-    .flatMap((s) => s.items)
-    .find((im) => im?.asset?._ref?.startsWith("image-"));
+  const items = r.images ?? (r.sections ?? []).flatMap((s) => s.images ?? []);
+  const images = items.map((im) => itemUrl(im, 1800)).filter(Boolean);
+  const firstImageItem = items.find((im) => im?.asset?._ref?.startsWith("image-"));
+  const coverSource = r.cover ?? firstImageItem;
+  const label = CATEGORY_LABEL[r.category] || "";
 
   return {
     id: r.id,
     title: r.title,
-    client: r.client || CATEGORY_LABEL[r.category] || "",
+    client: r.client || label,
+    subtitle: r.client && r.client !== label ? r.client : "",
     category: r.category,
     date: dateToNumber(r.date),
-    hero: (r.cover ? urlFor(r.cover, 2000) : "") || itemUrl(firstImageItem, 2000) || images[0] || "",
+    hero: (coverSource ? itemUrl(coverSource, 2000) : "") || images[0] || "",
+    thumb: (coverSource ? itemUrl(coverSource, 800) : "") || images[0] || "",
     images,
-    sections,
   };
 }
 
 const PROJECTS_QUERY = `*[_type == "project" && defined(slug.current)]| order(orderRank){
   "id": slug.current, title, client, category, date, cover,
-  sections[]{ title, images }, images
+  images, sections[]{ title, images }
 }`;
 
 export async function getProjects(): Promise<Project[]> {
@@ -96,7 +89,7 @@ export async function getMotionItems(): Promise<MotionItem[]> {
       title: r.title,
       client: "Motion",
       video: r.video ?? "",
-      poster: urlFor(r.poster, 1080),
+      poster: urlFor(r.poster, 900),
     }));
   } catch {
     return [];

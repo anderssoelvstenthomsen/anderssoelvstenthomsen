@@ -118,40 +118,44 @@ async function migrate() {
       if (!fs.statSync(brandDir).isDirectory()) continue;
       const files = walk(brandDir, [...IMG_EXT, ...VID_EXT]).sort((a, b) => recency(b) - recency(a));
       if (files.length === 0) continue;
-      const score = Math.max(...files.map(recency), 0);
-      console.log(`↑ ${category}/${brand} — ${files.length} items`);
 
       const orderSlugs: string[] = [];
-      const bySlug = new Map<string, MediaItem[]>();
-      let coverItem: MediaItem | null = null;
+      const bySlug = new Map<string, string[]>();
       for (const f of files) {
         const slug = sectionSlug(f, brandDir);
         if (!bySlug.has(slug)) {
           bySlug.set(slug, []);
           orderSlugs.push(slug);
         }
-        const item = VID_EXT.includes(path.extname(f).toLowerCase()) ? await uploadVideo(f) : await uploadImage(f);
-        bySlug.get(slug)!.push(item);
-        if (!coverItem && item._type === "image") coverItem = item;
+        bySlug.get(slug)!.push(f);
       }
-      const sections = orderSlugs.map((slug) => ({
-        _key: uniqueKey(),
-        _type: "section" as const,
-        title: sectionTitle(slug) || undefined,
-        images: bySlug.get(slug)!,
-      }));
 
-      await client.createOrReplace({
-        _id: `project-${category}-${brand}`,
-        _type: "project",
-        title: humanize(brand),
-        slug: { _type: "slug", current: `${category}-${brand}` },
-        category,
-        client: CATS[category],
-        date: isoDate(score),
-        cover: coverItem ? { _type: "image", asset: coverItem.asset } : undefined,
-        sections,
-      });
+      for (const slug of orderSlugs) {
+        const group = bySlug.get(slug)!;
+        const docSuffix = slug ? `-${slug}` : "";
+        console.log(`↑ ${category}/${brand}${docSuffix} — ${group.length} items`);
+
+        const images: MediaItem[] = [];
+        let coverItem: MediaItem | null = null;
+        for (const f of group) {
+          const item = VID_EXT.includes(path.extname(f).toLowerCase()) ? await uploadVideo(f) : await uploadImage(f);
+          images.push(item);
+          if (!coverItem && item._type === "image") coverItem = item;
+        }
+
+        const score = Math.max(...group.map(recency), 0);
+        await client.createOrReplace({
+          _id: `project-${category}-${brand}${docSuffix}`,
+          _type: "project",
+          title: humanize(brand),
+          slug: { _type: "slug", current: `${category}-${brand}${docSuffix}` },
+          category,
+          client: sectionTitle(slug) || CATS[category],
+          date: isoDate(score),
+          cover: coverItem ? { _type: "image", asset: coverItem.asset } : undefined,
+          images,
+        });
+      }
     }
   }
 

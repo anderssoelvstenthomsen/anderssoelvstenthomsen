@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { PT_Mono } from "next/font/google";
 import "./globals.css";
+import { ViewTransitions } from "next-view-transitions";
 import Header from "@/components/header";
 import Preloader from "@/components/preloader";
 import { MenuProvider } from "@/components/menu-context";
+import PrefetchImages from "@/components/prefetch-images";
+import { getProjects } from "@/lib/content";
 
 const ptMono = PT_Mono({
   weight: "400",
@@ -92,13 +95,17 @@ const jsonLd = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const projects = await getProjects();
+  const coverUrls = projects.map((p) => p.thumb).filter(Boolean);
+
   return (
-    <html lang="en">
+    <ViewTransitions>
+      <html lang="en">
       <head>
         <script
           type="application/ld+json"
@@ -113,7 +120,9 @@ export default function RootLayout({
           <Header />
           {children}
         </MenuProvider>
+        <PrefetchImages urls={coverUrls} />
       </body>
-    </html>
+      </html>
+    </ViewTransitions>
   );
 }

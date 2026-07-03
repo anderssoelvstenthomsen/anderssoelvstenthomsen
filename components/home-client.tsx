@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
+import FadeImage from "@/components/fade-image";
+import { Link } from "next-view-transitions";
 import { useMenu } from "@/components/menu-context";
 import { useMountEffect } from "@/hooks/useMountEffect";
 import { type Project } from "@/lib/projects";
@@ -64,13 +64,12 @@ export default function HomeClient({ heroVideo, featured }: { heroVideo: string;
             }}
           >
             <div className="absolute inset-y-0 inset-x-6 md:inset-x-0">
-              <Image
+              <FadeImage
                 src={project.hero}
                 alt={project.title}
                 fill
                 className="object-contain object-center"
                 priority={i === 0}
-                unoptimized
               />
             </div>
           </div>

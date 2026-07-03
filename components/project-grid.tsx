@@ -1,13 +1,6 @@
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
+import FadeImage from "@/components/fade-image";
 import { type Project } from "@/lib/projects";
-
-function getLookbookImage(project: Project): string {
-  if (/\.(webm|mp4|mov)$/i.test(project.hero)) {
-    return project.images.find((img) => !/\.(webm|mp4|mov)$/i.test(img)) ?? project.hero;
-  }
-  return project.hero;
-}
 
 const textClass = "font-mono text-[9px] font-bold tracking-normal uppercase leading-none";
 
@@ -22,19 +15,22 @@ function ProjectRow({ group, cols, sizes, gap }: { group: Project[]; cols: strin
     <div className={`grid ${cols} ${gap}`}>
       {group.map((project) => (
         <Link key={`img-${project.id}`} href={`/projects/${project.id}`} className="group row-start-1 self-end">
-          <Image
-            src={getLookbookImage(project)}
+          <FadeImage
+            src={project.thumb || project.hero}
             alt={project.title}
             width={0}
             height={0}
             sizes={sizes}
-            className="w-full h-auto transition-opacity duration-500 group-hover:opacity-80"
+            className="w-full h-auto group-hover:opacity-80"
           />
         </Link>
       ))}
       {group.map((project) => (
-        <div key={`text-${project.id}`} className="row-start-2 pt-2 flex flex-col">
+        <div key={`text-${project.id}`} className="row-start-2 pt-2 flex flex-col gap-1">
           <span className={`${textClass} text-foreground`}>{project.title}</span>
+          {project.subtitle ? (
+            <span className={`${textClass} text-foreground/40`}>{project.subtitle}</span>
+          ) : null}
         </div>
       ))}
     </div>
