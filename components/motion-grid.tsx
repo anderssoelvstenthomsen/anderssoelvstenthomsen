@@ -57,7 +57,7 @@ function MotionRow({
   );
 }
 
-export default function MotionGrid({ items }: { items: MotionItem[] }) {
+export default function MotionGrid({ items, heading }: { items: MotionItem[]; heading?: string }) {
   const [active, setActive] = useState<MotionItem | null>(null);
 
   const mobileRows = chunk(items, 2);
@@ -65,6 +65,7 @@ export default function MotionGrid({ items }: { items: MotionItem[] }) {
 
   return (
     <main className="min-h-[100dvh] bg-background px-6 md:px-10 lg:px-16 pt-28 pb-16">
+      {heading ? <h1 className="sr-only">{heading}</h1> : null}
 
       <div className="flex flex-col gap-8 md:hidden">
         {mobileRows.map((group, gi) => (

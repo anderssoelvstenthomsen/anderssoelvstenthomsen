@@ -34,6 +34,7 @@ export default function AboutClient({ settings }: { settings: SiteSettings }) {
 
   return (
     <section className="w-full min-h-[100dvh] bg-background text-foreground flex flex-col justify-start px-6 md:px-10 lg:px-16 pt-[60px] pb-16 relative overflow-x-hidden">
+      <h1 className="sr-only">About — Anders Sølvsten Thomsen</h1>
 
       <div className="w-full flex flex-col items-start relative z-10">
         <motion.div

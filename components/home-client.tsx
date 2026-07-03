@@ -27,6 +27,7 @@ export default function HomeClient({ heroVideo, featured }: { heroVideo: string;
       className={`h-[100dvh] snap-y snap-mandatory overflow-y-auto transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] ${menuOpen ? "md:translate-y-0 translate-y-[50vh]" : "translate-y-0"
         }`}
     >
+      <h1 className="sr-only">Anders Sølvsten Thomsen — Fashion Stylist &amp; Art Director</h1>
       <section className="relative h-[100dvh] snap-start overflow-hidden bg-black">
         <video
           key={preloaderDone ? "hero-ready" : "hero-idle"}

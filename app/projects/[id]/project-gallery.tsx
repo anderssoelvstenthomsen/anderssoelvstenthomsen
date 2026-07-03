@@ -40,6 +40,7 @@ export default function ProjectGallery({ project }: { project: Project }) {
 
   return (
     <div className="h-[100dvh] w-screen overflow-hidden bg-background relative">
+      <h1 className="sr-only">{project.title} — {project.client}</h1>
 
       <div
         className={`absolute inset-0 flex flex-col transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] ${overviewOpen ? "-translate-y-[45vh]" : "translate-y-0"

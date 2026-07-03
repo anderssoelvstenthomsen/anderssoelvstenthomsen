@@ -24,50 +24,72 @@ const nimbusSans = localFont({
   display: "swap",
 });
 
+const TITLE = "Anders Sølvsten Thomsen — Fashion Stylist & Art Director";
+const DESCRIPTION =
+  "Anders Sølvsten Thomsen is a Danish-born, European-based fashion stylist and art director, contributing to leading publications and collaborating with the industry’s most recognised brands.";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://anderssoelvstenthomsen.com"),
   title: {
-    default: "Anders Soelvsten Thomsen — Stylist & Creative Director",
-    template: "%s | Anders Soelvsten Thomsen",
+    default: TITLE,
+    template: "%s — Anders Sølvsten Thomsen",
   },
-  description:
-    "Anders Soelvsten Thomsen is a London-based fashion stylist and creative director. Explore editorial work, lookbooks, and collaborations with NME, Footballer Fits, and more.",
-  keywords: ["Anders Soelvsten Thomsen", "fashion stylist", "creative director", "London", "editorial", "lookbook"],
-  authors: [{ name: "Anders Soelvsten Thomsen" }],
-  creator: "Anders Soelvsten Thomsen",
+  description: DESCRIPTION,
+  keywords: [
+    "Anders Sølvsten Thomsen",
+    "Anders Soelvsten Thomsen",
+    "fashion stylist",
+    "art director",
+    "stylist",
+    "creative direction",
+    "editorial",
+    "campaigns",
+    "fashion",
+  ],
+  authors: [{ name: "Anders Sølvsten Thomsen" }],
+  creator: "Anders Sølvsten Thomsen",
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "en_GB",
     url: "https://anderssoelvstenthomsen.com",
-    siteName: "Anders Soelvsten Thomsen",
-    title: "Anders Soelvsten Thomsen — Stylist & Creative Director",
-    description:
-      "London-based fashion stylist and creative director. Editorial work, lookbooks, and collaborations.",
+    siteName: "Anders Sølvsten Thomsen",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Anders Sølvsten Thomsen" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Anders Soelvsten Thomsen — Stylist & Creative Director",
-    description:
-      "London-based fashion stylist and creative director. Editorial work, lookbooks, and collaborations.",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/og-image.png"],
   },
-  robots: {
-    index: true,
-    follow: true,
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png" }],
   },
+  manifest: "/site.webmanifest",
+  robots: { index: true, follow: true },
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
-  name: "Anders Soelvsten Thomsen",
-  jobTitle: "Fashion Stylist & Creative Director",
+  name: "Anders Sølvsten Thomsen",
+  alternateName: "Anders Soelvsten Thomsen",
+  jobTitle: "Fashion Stylist & Art Director",
   url: "https://anderssoelvstenthomsen.com",
+  image: "https://anderssoelvstenthomsen.com/og-image.png",
+  sameAs: ["https://www.instagram.com/anderssoelvstenthomsen/"],
   address: {
     "@type": "PostalAddress",
     addressLocality: "London",
     addressCountry: "GB",
   },
-  email: "anderssoelvstenthomsen@gmail.com",
 };
 
 export default function RootLayout({
