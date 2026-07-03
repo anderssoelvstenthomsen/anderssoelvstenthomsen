@@ -48,6 +48,7 @@ export default defineType({
       group: "about",
     }),
     defineField({ name: "contactHeadline", title: "Headline", type: "text", rows: 2, group: "contact" }),
+    defineField({ name: "repAgency", title: "Agency", type: "string", group: "contact" }),
     defineField({ name: "repName", title: "Agent name", type: "string", group: "contact" }),
     defineField({ name: "repTitle", title: "Agent title", type: "string", group: "contact" }),
     defineField({ name: "repEmail", title: "Agent email", type: "string", group: "contact" }),

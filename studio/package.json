@@ -11,7 +11,8 @@
     "migrate": "sanity exec scripts/migrate.ts --with-user-token",
     "migrate:motion": "sanity exec scripts/migrate-motion.ts --with-user-token",
     "migrate:gallery": "sanity exec scripts/migrate-gallery-videos.ts --with-user-token",
-    "migrate:order": "sanity exec scripts/migrate-order.ts --with-user-token"
+    "migrate:order": "sanity exec scripts/migrate-order.ts --with-user-token",
+    "migrate:text": "sanity exec scripts/migrate-text.ts --with-user-token"
   },
   "dependencies": {
     "@sanity/orderable-document-list": "^1.5.1",

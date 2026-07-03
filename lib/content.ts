@@ -103,6 +103,65 @@ export async function getHeroVideo(): Promise<string> {
   }
 }
 
+export interface SiteSettings {
+  aboutBio: string;
+  clientsList: string[];
+  artDirectionList: string[];
+  editorialList: string[];
+  contactHeadline: string;
+  repAgency: string;
+  repName: string;
+  repTitle: string;
+  repEmail: string;
+  repOffice: string;
+  repCell: string;
+  instagram: string;
+}
+
+const DEFAULT_SETTINGS: SiteSettings = {
+  aboutBio:
+    "Anders Sølvsten Thomsen is a Danish-born, European-based stylist and art director. He regularly contributes to leading publications and collaborates with some of the industry’s most recognised brands.\n\nAs a consulting stylist, Anders works across concept, design development and art direction. In addition to fashion, Anders curates and consults for various furniture and interior brands.",
+  clientsList: [
+    "ADIDAS", "AWAY", "BURBERRY", "CANADA GOOSE", "CHARLES JEFFREY LOVERBOY", "EVERLANE", "FARFETCH",
+    "GUCCI", "HUGO BOSS", "LOEWE", "LOUIS VUITTON", "MARC JACOBS", "MONTBLANC", "NIKE", "NINA RICCI", "ZARA",
+  ],
+  artDirectionList: [
+    "FENG CHEN WANG", "DESMOND AND DEMPSEY", "BARBOUR", "CONVERSE", "CROCS", "ILAI SARAI", "LEE",
+    "LEVIS RED", "MØBEL COPENHAGEN", "PANGAIA", "SAUCONY", "UGG",
+  ],
+  editorialList: [
+    "CR FASHION BOOK", "DOCUMENT JOURNAL", "DISPLAY COPY", "DUST", "FAMILY STYLE", "ICON AMERICA",
+    "INTERVIEW", "LOVE", "MODERN MATTER", "OFFICE", "RE-EDITION", "REPLICA MAN", "THE CUT", "VOGUE",
+  ],
+  contactHeadline: "For styling, creative direction, collaborations, and all general inquiries.",
+  repAgency: "LALALAND",
+  repName: "Murray Arthur",
+  repTitle: "Senior Agent",
+  repEmail: "murray@lalaland-group.com",
+  repOffice: "+44 (0) 203 701 7655",
+  repCell: "+44 (0) 794 133 1206",
+  instagram: "https://www.instagram.com/anderssoelvstenthomsen/",
+};
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  if (!sanityEnabled || !client) return DEFAULT_SETTINGS;
+  try {
+    const s = await client.fetch<Partial<SiteSettings> | null>(
+      `*[_id == "siteSettings"][0]{
+        aboutBio, clientsList, artDirectionList, editorialList,
+        contactHeadline, repAgency, repName, repTitle, repEmail, repOffice, repCell, instagram
+      }`,
+    );
+    if (!s) return DEFAULT_SETTINGS;
+    const present = Object.fromEntries(
+      Object.entries(s).filter(([, v]) => v != null && (!Array.isArray(v) || v.length > 0)),
+    );
+    return { ...DEFAULT_SETTINGS, ...present };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+}
+
 export async function getFeatured(count: number): Promise<Project[]> {
   const projects = await getProjects();
   const seen = new Set<string>();
