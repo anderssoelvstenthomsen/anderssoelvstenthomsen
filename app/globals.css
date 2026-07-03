@@ -31,8 +31,3 @@ body {
     display: none;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-    animation-duration: 450ms;
-    animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-}

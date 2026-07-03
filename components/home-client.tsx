@@ -1,7 +1,7 @@
 "use client";
 
 import FadeImage from "@/components/fade-image";
-import { Link } from "next-view-transitions";
+import Link from "next/link";
 import { useMenu } from "@/components/menu-context";
 import { useMountEffect } from "@/hooks/useMountEffect";
 import { type Project } from "@/lib/projects";

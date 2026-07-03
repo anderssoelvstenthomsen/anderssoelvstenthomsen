@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { PT_Mono } from "next/font/google";
 import "./globals.css";
-import { ViewTransitions } from "next-view-transitions";
 import Header from "@/components/header";
 import Preloader from "@/components/preloader";
 import { MenuProvider } from "@/components/menu-context";
@@ -104,8 +103,7 @@ export default async function RootLayout({
   const coverUrls = projects.map((p) => p.thumb).filter(Boolean);
 
   return (
-    <ViewTransitions>
-      <html lang="en">
+    <html lang="en">
       <head>
         <script
           type="application/ld+json"
@@ -122,7 +120,6 @@ export default async function RootLayout({
         </MenuProvider>
         <PrefetchImages urls={coverUrls} />
       </body>
-      </html>
-    </ViewTransitions>
+    </html>
   );
 }
