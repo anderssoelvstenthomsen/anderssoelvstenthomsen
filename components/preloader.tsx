@@ -50,7 +50,7 @@ export default function Preloader() {
           ANDERS SøLVSTEN THOMSEN
         </span>
         <span className="md:hidden font-mono text-[9px] font-bold tracking-normal uppercase text-foreground">
-          FASHION STYLIST & CONSULTANT
+          FASHION STYLIST & ART DIRECTOR
         </span>
       </div>
 
@@ -61,7 +61,7 @@ export default function Preloader() {
       </span>
 
       <span className="hidden md:block font-mono text-[9px] font-bold tracking-normal uppercase text-foreground">
-        FASHION STYLIST & CONSULTANT
+        FASHION STYLIST & ART DIRECTOR
       </span>
     </div>
   );
