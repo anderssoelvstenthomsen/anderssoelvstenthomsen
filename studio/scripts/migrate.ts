@@ -53,6 +53,17 @@ function humanize(slug: string): string {
   return slug.split("-").map((w) => (w === "x" ? "×" : w === "and" ? "&" : w[0].toUpperCase() + w.slice(1))).join(" ");
 }
 
+const uniqueKey = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+function sectionSlug(file: string, brandDir: string): string {
+  const parts = path.relative(brandDir, file).split(path.sep);
+  return parts.length > 1 ? parts[0] : "";
+}
+
+function sectionTitle(slug: string): string {
+  return slug ? slug.replace(/-/g, " ").toUpperCase() : "";
+}
+
 function isoDate(score: number): string | undefined {
   if (!score) return undefined;
   const year = Math.floor(score);
@@ -70,8 +81,10 @@ async function uploadVideo(file: string) {
     filename: path.basename(file),
     contentType: "video/mp4",
   });
-  return { _type: "file", asset: { _type: "reference", _ref: asset._id } };
+  return { _type: "file", _key: uniqueKey(), asset: { _type: "reference", _ref: asset._id } };
 }
+
+type MediaItem = { _type: string; _key: string; asset: { _type: string; _ref: string } };
 
 export async function migrateMotion() {
   const motionDir = path.join(ASSETS, "motion");
@@ -107,11 +120,27 @@ async function migrate() {
       if (files.length === 0) continue;
       const score = Math.max(...files.map(recency), 0);
       console.log(`↑ ${category}/${brand} — ${files.length} items`);
-      const images = [];
+
+      const orderSlugs: string[] = [];
+      const bySlug = new Map<string, MediaItem[]>();
+      let coverItem: MediaItem | null = null;
       for (const f of files) {
-        images.push(VID_EXT.includes(path.extname(f).toLowerCase()) ? await uploadVideo(f) : await uploadImage(f));
+        const slug = sectionSlug(f, brandDir);
+        if (!bySlug.has(slug)) {
+          bySlug.set(slug, []);
+          orderSlugs.push(slug);
+        }
+        const item = VID_EXT.includes(path.extname(f).toLowerCase()) ? await uploadVideo(f) : await uploadImage(f);
+        bySlug.get(slug)!.push(item);
+        if (!coverItem && item._type === "image") coverItem = item;
       }
-      const coverItem = images.find((it) => it._type === "image");
+      const sections = orderSlugs.map((slug) => ({
+        _key: uniqueKey(),
+        _type: "section" as const,
+        title: sectionTitle(slug) || undefined,
+        images: bySlug.get(slug)!,
+      }));
+
       await client.createOrReplace({
         _id: `project-${category}-${brand}`,
         _type: "project",
@@ -121,7 +150,7 @@ async function migrate() {
         client: CATS[category],
         date: isoDate(score),
         cover: coverItem ? { _type: "image", asset: coverItem.asset } : undefined,
-        images,
+        sections,
       });
     }
   }

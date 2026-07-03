@@ -23,6 +23,7 @@ type ProjectRow = {
   category: Project["category"];
   date?: string;
   cover?: SanityImage;
+  sections?: { title?: string; images?: SanityImage[] }[];
   images?: SanityImage[];
 };
 
@@ -39,21 +40,35 @@ function itemUrl(item?: SanityImage, width = 2400): string {
 }
 
 function mapProject(r: ProjectRow): Project {
-  const images = (r.images ?? []).map((im) => itemUrl(im)).filter(Boolean);
-  const firstImage = (r.images ?? []).find((im) => im?.asset?._ref?.startsWith("image-"));
+  const rawSections =
+    r.sections && r.sections.length > 0
+      ? r.sections.map((s) => ({ title: s.title ?? "", items: s.images ?? [] }))
+      : [{ title: "", items: r.images ?? [] }];
+
+  const sections = rawSections
+    .map((s) => ({ title: s.title, images: s.items.map((im) => itemUrl(im)).filter(Boolean) }))
+    .filter((s) => s.images.length > 0);
+
+  const images = sections.flatMap((s) => s.images);
+  const firstImageItem = rawSections
+    .flatMap((s) => s.items)
+    .find((im) => im?.asset?._ref?.startsWith("image-"));
+
   return {
     id: r.id,
     title: r.title,
     client: r.client || CATEGORY_LABEL[r.category] || "",
     category: r.category,
     date: dateToNumber(r.date),
-    hero: (r.cover ? urlFor(r.cover, 2000) : "") || itemUrl(firstImage, 2000) || images[0] || "",
+    hero: (r.cover ? urlFor(r.cover, 2000) : "") || itemUrl(firstImageItem, 2000) || images[0] || "",
     images,
+    sections,
   };
 }
 
 const PROJECTS_QUERY = `*[_type == "project" && defined(slug.current)]| order(orderRank){
-  "id": slug.current, title, client, category, date, cover, images
+  "id": slug.current, title, client, category, date, cover,
+  sections[]{ title, images }, images
 }`;
 
 export async function getProjects(): Promise<Project[]> {

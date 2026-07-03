@@ -12,18 +12,20 @@ export default function ProjectGallery({ project }: { project: Project }) {
   const [currentImage, setCurrentImage] = useState(0);
   const [overviewOpen, setOverviewOpen] = useState(false);
 
-  const totalImages = project.images.length;
+  const slides = project.sections.flatMap((section) =>
+    section.images.map((img) => ({ img, section: section.title })),
+  );
+  const total = slides.length;
+  const current = slides[currentImage] ?? slides[0];
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (overviewOpen) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const half = rect.width / 2;
-
-    if (x < half) {
-      setCurrentImage((prev) => (prev - 1 + totalImages) % totalImages);
+    if (x < rect.width / 2) {
+      setCurrentImage((prev) => (prev - 1 + total) % total);
     } else {
-      setCurrentImage((prev) => (prev + 1) % totalImages);
+      setCurrentImage((prev) => (prev + 1) % total);
     }
   };
 
@@ -31,6 +33,10 @@ export default function ProjectGallery({ project }: { project: Project }) {
     setCurrentImage(index);
     setOverviewOpen(false);
   };
+
+  const sectionStarts = project.sections.map((_, i) =>
+    project.sections.slice(0, i).reduce((n, s) => n + s.images.length, 0),
+  );
 
   return (
     <div className="h-[100dvh] w-screen overflow-hidden bg-background relative">
@@ -44,16 +50,16 @@ export default function ProjectGallery({ project }: { project: Project }) {
             }`}
           onClick={handleClick}
         >
-          {project.images.map((img, i) => (
+          {slides.map((slide, i) => (
             <div
               key={i}
               className={`absolute inset-0 flex items-center justify-center px-6 md:px-0 pt-28 pb-8 transition-opacity duration-500 ${i === currentImage ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
                 }`}
             >
               <div className="relative w-full h-full">
-                {isVideo(img) ? (
+                {isVideo(slide.img) ? (
                   <video
-                    src={img}
+                    src={slide.img}
                     autoPlay
                     loop
                     muted
@@ -62,11 +68,12 @@ export default function ProjectGallery({ project }: { project: Project }) {
                   />
                 ) : (
                   <Image
-                    src={img}
+                    src={slide.img}
                     alt={`${project.title} ${i + 1}`}
                     fill
                     className="object-contain object-center"
                     priority={i === 0}
+                    unoptimized
                   />
                 )}
               </div>
@@ -97,43 +104,64 @@ export default function ProjectGallery({ project }: { project: Project }) {
             </div>
           </div>
 
-          <span className="font-mono text-[9px] font-bold tracking-normal text-foreground/40">
-            {currentImage + 1} / {totalImages}
-          </span>
+          <div className="flex flex-col items-end gap-1">
+            {current?.section ? (
+              <span className="font-mono text-[9px] font-bold tracking-normal uppercase text-foreground">
+                {current.section}
+              </span>
+            ) : null}
+            <span className="font-mono text-[9px] font-bold tracking-normal text-foreground/40">
+              {currentImage + 1} / {total}
+            </span>
+          </div>
         </div>
       </div>
+
       <div
         className={`absolute top-[100dvh] inset-x-0 h-[45vh] bg-background transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] overflow-y-auto ${overviewOpen ? "-translate-y-full" : "translate-y-0"
           }`}
       >
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4 px-6 md:px-10 lg:px-16 pb-10 pt-2">
-          {project.images.map((img, i) => (
-            <button
-              key={i}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleThumbnailClick(i);
-              }}
-              className="relative aspect-[3/4] overflow-hidden"
-            >
-              {isVideo(img) ? (
-                <video
-                  src={img}
-                  muted
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-contain"
-                />
-              ) : (
-                <Image
-                  src={img}
-                  alt={`${project.title} thumbnail ${i + 1}`}
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 768px) 33vw, (max-width: 1200px) 20vw, 15vw"
-                />
-              )}
-            </button>
-          ))}
+        <div className="flex flex-col gap-6 px-6 md:px-10 lg:px-16 pb-10 pt-2">
+          {project.sections.map((section, si) => {
+            const start = sectionStarts[si];
+            return (
+              <div key={si} className="flex flex-col gap-2">
+                {section.title ? (
+                  <span className="font-mono text-[9px] font-bold tracking-normal uppercase text-foreground/40">
+                    {section.title}
+                  </span>
+                ) : null}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                  {section.images.map((img, j) => {
+                    const index = start + j;
+                    return (
+                      <button
+                        key={j}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleThumbnailClick(index);
+                        }}
+                        className="relative aspect-[3/4] overflow-hidden"
+                      >
+                        {isVideo(img) ? (
+                          <video src={img} muted playsInline className="absolute inset-0 w-full h-full object-contain" />
+                        ) : (
+                          <Image
+                            src={img}
+                            alt={`${project.title} thumbnail ${index + 1}`}
+                            fill
+                            className="object-contain"
+                            sizes="(max-width: 768px) 33vw, (max-width: 1200px) 20vw, 15vw"
+                            unoptimized
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+import { defineType, defineField, defineArrayMember } from "sanity";
 import { orderRankField } from "@sanity/orderable-document-list";
 import { BatchImageInput } from "../components/BatchImageInput";
 
@@ -46,18 +46,41 @@ export default defineType({
       description: "Grid/home cover. If empty, the first gallery image is used.",
     }),
     defineField({
-      name: "images",
+      name: "sections",
       title: "Gallery",
+      description: "Group media into sections (e.g. seasons or collections). Leave a section title empty for an unlabelled group.",
       type: "array",
       of: [
-        { type: "image", options: { hotspot: true } },
-        { type: "file", title: "Video", options: { accept: "video/*" } },
+        defineArrayMember({
+          type: "object",
+          name: "section",
+          fields: [
+            defineField({ name: "title", title: "Section title (e.g. AW25)", type: "string" }),
+            defineField({
+              name: "images",
+              title: "Media",
+              type: "array",
+              of: [
+                { type: "image", options: { hotspot: true } },
+                { type: "file", title: "Video", options: { accept: "video/*" } },
+              ],
+              components: { input: BatchImageInput },
+            }),
+          ],
+          preview: {
+            select: { title: "title", media: "images.0", images: "images" },
+            prepare: ({ title, media, images }) => ({
+              title: title || "Untitled section",
+              subtitle: `${images?.length ?? 0} items`,
+              media,
+            }),
+          },
+        }),
       ],
-      components: { input: BatchImageInput },
     }),
   ],
   preview: {
-    select: { title: "title", subtitle: "category", cover: "cover", first: "images.0" },
+    select: { title: "title", subtitle: "category", cover: "cover", first: "sections.0.images.0" },
     prepare: ({ title, subtitle, cover, first }) => ({ title, subtitle, media: cover || first }),
   },
 });
