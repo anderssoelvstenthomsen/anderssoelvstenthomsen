@@ -4,9 +4,10 @@ import FadeImage from "@/components/fade-image";
 import Link from "next/link";
 import { useMenu } from "@/components/menu-context";
 import { useMountEffect } from "@/hooks/useMountEffect";
+import { type Hero } from "@/lib/content";
 import { type Project } from "@/lib/projects";
 
-export default function HomeClient({ heroVideo, featured }: { heroVideo: string; featured: Project[] }) {
+export default function HomeClient({ hero, featured }: { hero: Hero; featured: Project[] }) {
   const { menuOpen, preloaderDone, setHeroActive } = useMenu();
 
   useMountEffect(() => {
@@ -29,17 +30,27 @@ export default function HomeClient({ heroVideo, featured }: { heroVideo: string;
     >
       <h1 className="sr-only">Anders Sølvsten Thomsen — Fashion Stylist &amp; Art Director</h1>
       <section className="relative h-[100dvh] snap-start overflow-hidden bg-black">
-        <video
-          key={preloaderDone ? "hero-ready" : "hero-idle"}
-          src={heroVideo}
-          autoPlay={preloaderDone}
-          loop
-          muted
-          playsInline
-          preload="auto"
-          aria-label="Hero campaign film"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        {hero.type === "image" ? (
+          <FadeImage
+            src={hero.src}
+            alt="Hero campaign image"
+            fill
+            priority
+            className="object-cover"
+          />
+        ) : (
+          <video
+            key={preloaderDone ? "hero-ready" : "hero-idle"}
+            src={hero.src}
+            autoPlay={preloaderDone}
+            loop
+            muted
+            playsInline
+            preload="auto"
+            aria-label="Hero campaign film"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
         <div className="absolute inset-0 bg-black/55" />
         <div className="absolute inset-0 flex items-center justify-end px-6 md:px-10 lg:px-16">
           <div className="flex flex-col items-end gap-1">

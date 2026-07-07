@@ -18,6 +18,14 @@ export default defineType({
       group: "home",
     }),
     defineField({
+      name: "heroImage",
+      title: "Homepage hero image (optional)",
+      type: "image",
+      options: { hotspot: true },
+      description: "If set, this image is shown as the homepage hero instead of the video. Remove it to use the video again.",
+      group: "home",
+    }),
+    defineField({
       name: "featured",
       title: "Featured projects (optional)",
       type: "array",
@@ -48,6 +56,7 @@ export default defineType({
       group: "about",
     }),
     defineField({ name: "contactHeadline", title: "Headline", type: "text", rows: 2, group: "contact" }),
+    defineField({ name: "contactEmail", title: "Direct email", type: "string", group: "contact" }),
     defineField({ name: "repAgency", title: "Agency", type: "string", group: "contact" }),
     defineField({ name: "repName", title: "Agent name", type: "string", group: "contact" }),
     defineField({ name: "repTitle", title: "Agent title", type: "string", group: "contact" }),

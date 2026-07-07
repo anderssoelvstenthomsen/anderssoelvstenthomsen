@@ -96,18 +96,26 @@ export async function getMotionItems(): Promise<MotionItem[]> {
   }
 }
 
-export async function getHeroVideo(): Promise<string> {
-  if (!sanityEnabled || !client) return "";
+export interface Hero {
+  type: "video" | "image";
+  src: string;
+}
+
+export async function getHero(): Promise<Hero> {
+  if (!sanityEnabled || !client) return { type: "video", src: "" };
   try {
-    const url = await client.fetch<string | null>(
-      `coalesce(
-        *[_id == "siteSettings"][0].heroVideo.asset->url,
-        *[_type == "motionItem" && defined(video.asset)] | order(orderRank)[0].video.asset->url
-      )`,
+    const s = await client.fetch<{ image?: SanityImage; video?: string | null } | null>(
+      `*[_id == "siteSettings"][0]{ "image": heroImage, "video": heroVideo.asset->url }`,
     );
-    return url || "";
+    const image = s?.image?.asset ? urlFor(s.image, 2400) : "";
+    if (image) return { type: "image", src: image };
+    if (s?.video) return { type: "video", src: s.video };
+    const top = await client.fetch<string | null>(
+      `*[_type == "motionItem" && defined(video.asset)] | order(orderRank)[0].video.asset->url`,
+    );
+    return { type: "video", src: top || "" };
   } catch {
-    return "";
+    return { type: "video", src: "" };
   }
 }
 
@@ -117,6 +125,7 @@ export interface SiteSettings {
   artDirectionList: string[];
   editorialList: string[];
   contactHeadline: string;
+  contactEmail: string;
   repAgency: string;
   repName: string;
   repTitle: string;
@@ -142,6 +151,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
     "INTERVIEW", "LOVE", "MODERN MATTER", "OFFICE", "RE-EDITION", "REPLICA MAN", "THE CUT", "VOGUE",
   ],
   contactHeadline: "For styling, creative direction, collaborations, and all general inquiries.",
+  contactEmail: "contact@anderssoelvstenthomsen.com",
   repAgency: "LALALAND",
   repName: "Murray Arthur",
   repTitle: "Senior Agent",
@@ -157,7 +167,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     const s = await client.fetch<Partial<SiteSettings> | null>(
       `*[_id == "siteSettings"][0]{
         aboutBio, clientsList, artDirectionList, editorialList,
-        contactHeadline, repAgency, repName, repTitle, repEmail, repOffice, repCell, instagram
+        contactHeadline, contactEmail, repAgency, repName, repTitle, repEmail, repOffice, repCell, instagram
       }`,
     );
     if (!s) return DEFAULT_SETTINGS;
@@ -170,15 +180,33 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   }
 }
 
-export async function getFeatured(count: number): Promise<Project[]> {
+async function getPickedFeatured(projects: Project[]): Promise<Project[]> {
+  if (!sanityEnabled || !client) return [];
+  try {
+    const ids = await client.fetch<(string | null)[] | null>(
+      `*[_id == "siteSettings"][0].featured[]->slug.current`,
+    );
+    return (ids ?? [])
+      .map((id) => projects.find((p) => p.id === id))
+      .filter((p): p is Project => Boolean(p));
+  } catch {
+    return [];
+  }
+}
+
+export async function getFeatured(fallbackCount: number): Promise<Project[]> {
   const projects = await getProjects();
+
+  const picked = await getPickedFeatured(projects);
+  if (picked.length > 0) return picked;
+
   const seen = new Set<string>();
   const out: Project[] = [];
   for (const p of projects) {
     if (seen.has(p.title)) continue;
     seen.add(p.title);
     out.push(p);
-    if (out.length === count) break;
+    if (out.length === fallbackCount) break;
   }
   return out;
 }

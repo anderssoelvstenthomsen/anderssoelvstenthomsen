@@ -51,6 +51,24 @@ export default function ContactClient({ settings }: { settings: SiteSettings }) 
             </div>
           </div>
 
+          {settings.contactEmail ? (
+            <div className="pt-8 md:pt-12">
+              <span className="block font-mono text-[9px] font-bold tracking-normal uppercase text-foreground/40 mb-2">
+                EMAIL
+              </span>
+              <motion.a
+                href={`mailto:${settings.contactEmail}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                whileHover={{ opacity: 0.4 }}
+                transition={{ duration: 0.3 }}
+                className="inline-block font-mono font-bold text-xl md:text-3xl lg:text-4xl tracking-tight cursor-pointer break-all"
+              >
+                {settings.contactEmail}
+              </motion.a>
+            </div>
+          ) : null}
+
           <div className="pt-8 md:pt-12">
             <span className="block font-mono text-[9px] font-bold tracking-normal uppercase text-foreground/40 mb-2">
               SOCIAL

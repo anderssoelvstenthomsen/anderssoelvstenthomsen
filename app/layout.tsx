@@ -6,7 +6,7 @@ import Header from "@/components/header";
 import Preloader from "@/components/preloader";
 import { MenuProvider } from "@/components/menu-context";
 import PrefetchImages from "@/components/prefetch-images";
-import { getProjects } from "@/lib/content";
+import { getProjects, getSiteSettings } from "@/lib/content";
 
 const ptMono = PT_Mono({
   weight: "400",
@@ -86,6 +86,7 @@ const jsonLd = {
   jobTitle: "Fashion Stylist & Art Director",
   url: "https://anderssoelvstenthomsen.com",
   image: "https://anderssoelvstenthomsen.com/og-image.png",
+  email: "contact@anderssoelvstenthomsen.com",
   sameAs: ["https://www.instagram.com/anderssoelvstenthomsen/"],
   address: {
     "@type": "PostalAddress",
@@ -99,7 +100,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const projects = await getProjects();
+  const [projects, settings] = await Promise.all([getProjects(), getSiteSettings()]);
   const coverUrls = projects.map((p) => p.thumb).filter(Boolean);
 
   return (
@@ -115,7 +116,7 @@ export default async function RootLayout({
       >
         <MenuProvider>
           <Preloader />
-          <Header />
+          <Header email={settings.contactEmail} />
           {children}
         </MenuProvider>
         <PrefetchImages urls={coverUrls} />

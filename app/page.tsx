@@ -1,7 +1,7 @@
 import HomeClient from "@/components/home-client";
-import { getFeatured, getHeroVideo } from "@/lib/content";
+import { getFeatured, getHero } from "@/lib/content";
 
 export default async function Home() {
-  const [heroVideo, featured] = await Promise.all([getHeroVideo(), getFeatured(6)]);
-  return <HomeClient heroVideo={heroVideo} featured={featured} />;
+  const [hero, featured] = await Promise.all([getHero(), getFeatured(6)]);
+  return <HomeClient hero={hero} featured={featured} />;
 }

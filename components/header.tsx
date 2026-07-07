@@ -18,7 +18,7 @@ const allLinks = [
   ...navLinks,
 ];
 
-export default function Header() {
+export default function Header({ email }: { email: string }) {
   const { menuOpen, setMenuOpen, preloaderDone, heroActive } = useMenu();
   const pathname = usePathname();
 
@@ -67,7 +67,7 @@ export default function Header() {
             className={`mt-auto grid grid-cols-[1fr_auto_1fr] gap-4 items-center font-mono text-[9px] font-bold tracking-normal text-foreground/40`}
             style={{ opacity: menuOpen ? 1 : 0, transitionDuration: "600ms" }}
           >
-            <span>anderssoelvstenthomsen@gmail.com</span>
+            <span>{email}</span>
             <span>|</span>
             <span className="text-right">London, UK</span>
           </div>
