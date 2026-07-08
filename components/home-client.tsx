@@ -4,10 +4,29 @@ import FadeImage from "@/components/fade-image";
 import Link from "next/link";
 import { useMenu } from "@/components/menu-context";
 import { useMountEffect } from "@/hooks/useMountEffect";
-import { type Hero } from "@/lib/content";
+import { type Hero, type HeroSet } from "@/lib/content";
 import { type Project } from "@/lib/projects";
 
-export default function HomeClient({ hero, featured }: { hero: Hero; featured: Project[] }) {
+function HeroMedia({ hero, play }: { hero: Hero; play: boolean }) {
+  if (hero.type === "image") {
+    return <FadeImage src={hero.src} alt="Hero campaign image" fill priority className="object-cover" />;
+  }
+  return (
+    <video
+      key={play ? "hero-ready" : "hero-idle"}
+      src={hero.src}
+      autoPlay={play}
+      loop
+      muted
+      playsInline
+      preload="auto"
+      aria-label="Hero campaign film"
+      className="absolute inset-0 w-full h-full object-cover"
+    />
+  );
+}
+
+export default function HomeClient({ hero, featured }: { hero: HeroSet; featured: Project[] }) {
   const { menuOpen, preloaderDone, setHeroActive } = useMenu();
 
   useMountEffect(() => {
@@ -30,26 +49,17 @@ export default function HomeClient({ hero, featured }: { hero: Hero; featured: P
     >
       <h1 className="sr-only">Anders Sølvsten Thomsen — Fashion Stylist &amp; Art Director</h1>
       <section className="relative h-[100dvh] snap-start overflow-hidden bg-black">
-        {hero.type === "image" ? (
-          <FadeImage
-            src={hero.src}
-            alt="Hero campaign image"
-            fill
-            priority
-            className="object-cover"
-          />
+        {hero.mobile ? (
+          <>
+            <div className="md:hidden absolute inset-0">
+              <HeroMedia hero={hero.mobile} play={preloaderDone} />
+            </div>
+            <div className="hidden md:block absolute inset-0">
+              <HeroMedia hero={hero.desktop} play={preloaderDone} />
+            </div>
+          </>
         ) : (
-          <video
-            key={preloaderDone ? "hero-ready" : "hero-idle"}
-            src={hero.src}
-            autoPlay={preloaderDone}
-            loop
-            muted
-            playsInline
-            preload="auto"
-            aria-label="Hero campaign film"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <HeroMedia hero={hero.desktop} play={preloaderDone} />
         )}
         <div className="absolute inset-0 bg-black/55" />
         <div className="absolute inset-0 flex items-center justify-end px-6 md:px-10 lg:px-16">

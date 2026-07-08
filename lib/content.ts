@@ -101,21 +101,48 @@ export interface Hero {
   src: string;
 }
 
-export async function getHero(): Promise<Hero> {
-  if (!sanityEnabled || !client) return { type: "video", src: "" };
+export interface HeroSet {
+  desktop: Hero;
+  mobile: Hero | null;
+}
+
+function pickHero(image: SanityImage | undefined, video: string | null | undefined, width: number): Hero | null {
+  const img = image?.asset ? urlFor(image, width) : "";
+  if (img) return { type: "image", src: img };
+  if (video) return { type: "video", src: video };
+  return null;
+}
+
+export async function getHero(): Promise<HeroSet> {
+  const fallback: HeroSet = { desktop: { type: "video", src: "" }, mobile: null };
+  if (!sanityEnabled || !client) return fallback;
   try {
-    const s = await client.fetch<{ image?: SanityImage; video?: string | null } | null>(
-      `*[_id == "siteSettings"][0]{ "image": heroImage, "video": heroVideo.asset->url }`,
+    const s = await client.fetch<{
+      image?: SanityImage;
+      video?: string | null;
+      imageMobile?: SanityImage;
+      videoMobile?: string | null;
+    } | null>(
+      `*[_id == "siteSettings"][0]{
+        "image": heroImage,
+        "video": heroVideo.asset->url,
+        "imageMobile": heroImageMobile,
+        "videoMobile": heroVideoMobile.asset->url
+      }`,
     );
-    const image = s?.image?.asset ? urlFor(s.image, 2400) : "";
-    if (image) return { type: "image", src: image };
-    if (s?.video) return { type: "video", src: s.video };
-    const top = await client.fetch<string | null>(
-      `*[_type == "motionItem" && defined(video.asset)] | order(orderRank)[0].video.asset->url`,
-    );
-    return { type: "video", src: top || "" };
+
+    let desktop = pickHero(s?.image, s?.video, 2400);
+    if (!desktop) {
+      const top = await client.fetch<string | null>(
+        `*[_type == "motionItem" && defined(video.asset)] | order(orderRank)[0].video.asset->url`,
+      );
+      desktop = { type: "video", src: top || "" };
+    }
+
+    const mobile = pickHero(s?.imageMobile, s?.videoMobile, 1400);
+    return { desktop, mobile };
   } catch {
-    return { type: "video", src: "" };
+    return fallback;
   }
 }
 

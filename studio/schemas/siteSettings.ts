@@ -26,6 +26,22 @@ export default defineType({
       group: "home",
     }),
     defineField({
+      name: "heroVideoMobile",
+      title: "Mobile hero video (optional)",
+      type: "file",
+      options: { accept: "video/*" },
+      description: "Portrait video shown on phones instead of the desktop hero. If empty, phones use the desktop hero.",
+      group: "home",
+    }),
+    defineField({
+      name: "heroImageMobile",
+      title: "Mobile hero image (optional)",
+      type: "image",
+      options: { hotspot: true },
+      description: "Portrait image shown on phones. Takes priority over the mobile video, like on desktop.",
+      group: "home",
+    }),
+    defineField({
       name: "featured",
       title: "Featured projects (optional)",
       type: "array",
